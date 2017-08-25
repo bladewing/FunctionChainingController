@@ -5,7 +5,7 @@ import re, sys
 
 class SecApp():
 
-    def __init__(self, group, hw_addr, token, misc):
+    def __init__(self, group, hw_addr, token, misc=''):
         # { "type": "REGISTER", "group": "saGroup", "hw_addr": "mac-address", "token": "secureToken", "misc": "misc info" }
         self.group = group
         self.token = token
