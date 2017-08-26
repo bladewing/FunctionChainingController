@@ -2,10 +2,23 @@
 from flask import Flask, json, Response, make_response, request, jsonify
 import SecAppManager, jwt
 # standard Libraries
-import re, sys, time
+import re, sys, time, configparser
+
+config = configparser.ConfigParser()
+config.read('controller.ini')
+if(not config["GENERAL"]["port"]):
+    print("Port missing in Config file!")
+    sys.exit(0)
+groupList = json.loads(config["Controller"]["groups"])
 app = Flask(__name__)
-secret = "5566F08A9218BEAF6E6714B5870161CBD12A975F6E516FAD66D28FE56302930D"
-timeout_length = 5 * 60 # timeout time of token in seconds
+if(not config["GENERAL"]["secret"]):
+    print("Secret missing in Config file!")
+    sys.exit(0)
+secret = config["GENERAL"]["secret"]
+if(not config["Controller"]["timeout"]):
+    print("Timeout missing in Config file!")
+    sys.exit(0)
+timeout_length = int(config["Controller"]["timeout"]) * 60 # timeout time of token in seconds
 
 @app.route('/')
 def home():
@@ -43,6 +56,7 @@ def register():
 
 @app.route('/keep-alive', methods=['POST'])
 def keepAlive():
+    # TODO: If Controller is restarted and keep-alive comes in, re-register Wrapper if request is valid
     # Check if received keep-alive message is valid.
     decoded = checkAuth(request)
     instanceID = decoded["instanceID"]
@@ -66,8 +80,9 @@ def keepAlive():
 
 @app.route('/alert', methods=['POST'])
 def alert():
-    # TODO: Logic
-    if(checkAuth(request) != False):
+    decoded = checkAuth(request)
+    if(decoded != False):
+        print(decoded)
         resp = jsonify({"route": 'alert'})
         resp.status_code = 200
         return resp
@@ -165,7 +180,10 @@ def delSecApp(secApp):
 
 if(__name__ == "__main__"):
     secApps = dict()
-    addGroup("fw")
-    addGroup("ddos")
-    addGroup("ips")
-    app.run(debug=False, host='0.0.0.0', port=5000)
+    for group in groupList:
+        addGroup(group)
+    try:
+        app.run(debug=False, host='0.0.0.0', port=int(config["GENERAL"]["port"]))
+    except OSError as e:
+        print("Port already in use! Change port in config!")
+        sys.exit(0)
