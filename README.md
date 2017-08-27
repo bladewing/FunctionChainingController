@@ -21,3 +21,10 @@ Finally use pip3 to install the packages:
 After all prerequisites are installed, modify the config-file *wrapper.ini*. Then simply start the Wrapper with
 
 `python3 startController.py`
+
+# TODO
+
+-- Servicify Controller.
+-- Save registered Security Appliances (and routing configurations) in file after graceful stop.
+-- Read saved Security Appliances from file after restart.
+-- Send out new tokens to Security Appliances that are still online. Delete SecApps that are offline.
