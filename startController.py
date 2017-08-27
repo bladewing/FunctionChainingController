@@ -62,6 +62,9 @@ def keepAlive():
     # TODO: If Controller is restarted and keep-alive comes in, re-register Wrapper if request is valid
     # Check if received keep-alive message is valid.
     decoded = checkAuth(request)
+    if(decoded == False):
+        #Token Expired
+        return handle_error({"code": "token_expired", "description": "Token expired!"}, 401)
     instanceID = decoded["instanceID"]
     group = instanceID.split("-")
     # Check if group of the Security Appliance is available in the SecAppManager.
@@ -84,15 +87,21 @@ def keepAlive():
 @app.route('/alert', methods=['POST'])
 def alert():
     decoded = checkAuth(request)
-    if(decoded != False):
-        print(decoded)
-        resp = jsonify({"route": 'alert'})
-        resp.status_code = 200
-        return resp
+    if (decoded == False):
+        # Token Expired
+        return handle_error({"code": "token_expired", "description": "Token expired!"}, 401)
+    print(decoded)
+    resp = jsonify({"route": 'alert'})
+    resp.status_code = 200
+    return resp
+
 
 @app.route('/delete', methods=['POST'])
 def delete():
     decoded = checkAuth(request)
+    if (decoded == False):
+        # Token Expired
+        return handle_error({"code": "token_expired", "description": "Token expired!"}, 401)
     instanceID = decoded["instanceID"]
     group = instanceID.split("-")
     if (group[0] not in secApps.keys()):
