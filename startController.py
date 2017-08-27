@@ -47,6 +47,7 @@ def register():
         secApp.instanceID = str(e)
         resp = jsonify({"instanceID": str(e)})
         resp.status_code = 208
+        return resp
     # Create token to verify registration by Controller and send token containing expiration and instanceID to
     # requesting Instance
     encode = jwt.encode({"exp": (int(time.time()+timeout_length)), "instanceID": secApp.instanceID}, secret, algorithm='HS256')
