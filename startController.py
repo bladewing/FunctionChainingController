@@ -122,7 +122,6 @@ def checkAuth(request):
     # Checks if the token in the Header is signed and not expired.
     # Return payload.
     header = request.headers.get("Authorization")
-    print(header)
     if not header:
         return handle_error({"code": "auth_header_missing", "description": "Authorization Header is missing."}, 401)
     split = header.split()
