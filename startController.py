@@ -125,8 +125,6 @@ def secapps():
             res += app.instanceID + ",\n"
     return res
 
-
-
 def checkAuth(request):
     # Checks if the token in the Header is signed and not expired.
     # Return payload.
