@@ -25,6 +25,9 @@ After all prerequisites are installed, modify the config-file *wrapper.ini*. The
 # TODO
 
 -- Servicify Controller.
+
 -- Save registered Security Appliances (and routing configurations) in file after graceful stop.
+
 -- Read saved Security Appliances from file after restart.
+
 -- Send out new tokens to Security Appliances that are still online. Delete SecApps that are offline.
