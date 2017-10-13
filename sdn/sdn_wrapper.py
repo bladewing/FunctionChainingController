@@ -13,7 +13,9 @@ def rules():
     rules_file.write("#!/bin/sh\n")
     for i in range(0,len(loaded[local_ip])):
        rules_file.write("ovs-ofctl add-flow br0 \"%s\""%(loaded[local_ip][i])+"\n")
+    rules_file.close()
     os.system('chmod +x new_rules.sh && ./rules.sh && ./new_rules.sh')
+
     return make_response("test",200)
 
 if(__name__ == "__main__"):
