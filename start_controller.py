@@ -1,9 +1,13 @@
 """ start controller """
 import configparser
+import threading
+
+from ONOSController import ONOSController
 import re
 import sys
 import time
-from flask import Flask, json, request, jsonify
+from urllib.request import Request, urlopen
+from flask import Flask, json, request, jsonify, render_template
 import SecAppManager
 import jwt
 
@@ -13,6 +17,7 @@ if not CONFIG["GENERAL"]["port"]:
     print("Port missing in Config file!")
     sys.exit(0)
 GROUP_LIST = json.loads(CONFIG["Controller"]["groups"])
+CONTROLLER_URL = CONFIG["GENERAL"]["SDN_CONTROLLER"]
 APP = Flask(__name__)
 if not CONFIG["GENERAL"]["SECRET"]:
     print("Secret missing in Config file!")
@@ -21,13 +26,42 @@ SECRET = CONFIG["GENERAL"]["SECRET"]
 if not CONFIG["Controller"]["timeout"]:
     print("Timeout missing in Config file!")
     sys.exit(0)
-TIMEOUT_LENGTH = int(CONFIG["Controller"]["timeout"]) * 60  # timeout time of token in seconds
+TIMEOUT_LENGTH = int(CONFIG["Controller"]["timeout"]) * 60  # timeout time of token in minutes
+global CONTROLLER_READY
+STANDARD_CONF = json.loads(CONFIG["Controller"]["standard_conf"])
+global CURRENT_CONF
+THRESHHOLD = 100
+ATTACK_LIST = dict()
+for grp in GROUP_LIST:
+    ATTACK_LIST["%s" % (grp)] = 0
 
 
 @APP.route('/')
 def home():
     """ Render template to show user interface. """
-    return "Coming soon."
+    return render_template('index.html',
+                           ATTACK_LIST=([(k, ATTACK_LIST[k]) for k in sorted(ATTACK_LIST, key=ATTACK_LIST.get, reverse=True)]), current_conf=CURRENT_CONF,
+                           standard_conf=STANDARD_CONF, SECAPP_COUNT=len(STANDARD_CONF))
+
+
+@APP.route('/handle_data', methods=["POST"])
+def handle_data():
+    global CURRENT_CONF
+    new_conf = dict(request.form)["secapps"]
+    new_conf_set = set(new_conf)
+    if len(new_conf_set) < len(STANDARD_CONF):
+        return render_template('change.html', success=False, conf=new_conf, current=CURRENT_CONF    )
+    if new_conf == CURRENT_CONF:
+        return render_template('change.html', success=False, conf=new_conf, current=CURRENT_CONF)
+    data = {"list": json.dumps(new_conf)}
+    data_json = json.dumps(data)
+    conn = Request(CONTROLLER_URL + "/mod_routing",
+                   data_json.encode("utf-8"),
+                   {'Content-Type': 'application/json'})
+    resp = urlopen(conn)
+    CURRENT_CONF = new_conf
+    return render_template('change.html', success=True, conf=CURRENT_CONF, resp_code=resp.getcode(),
+                           SECAPP_COUNT=len(STANDARD_CONF))
 
 
 @APP.route('/register', methods=['POST'])
@@ -91,7 +125,7 @@ def keep_alive():
     # Check if group of the Security Appliance is available in the SecAppManager.
     if ka_group[0] not in SEC_APP_DICT.keys():
         return handle_error({"code": "wrapper_group_not_available", "description":
-                             "Group of Wrapper Instance not found in SecAppMannager"}, 404)
+            "Group of Wrapper Instance not found in SecAppMannager"}, 404)
     found = False
     # Check if instance_id of received keep-alive message is registered.
     for model in SEC_APP_DICT[ka_group[0]]:
@@ -114,15 +148,15 @@ def keep_alive():
 @APP.route('/alert', methods=['POST'])
 def alert():
     """
-    Logic of controller. Responsible for chaining the SecApps in correct order, depending on
-    attack rate
+    Maintains list of SecApps and their attacks.
     :return:
     """
     decoded = check_auth(request)
     if not decoded:
         # Token Expired
         return handle_error({"code": "token_expired", "description": "Token expired!"}, 401)
-    print(decoded)
+    data = request.json
+    ATTACK_LIST[data["group"]] += int(data["rate"])
     resp = jsonify({"route": 'alert'})
     resp.status_code = 200
     return resp
@@ -259,8 +293,62 @@ def del_sec_app(sec_app):
                     print("Security Appliance with id %s was not registered.", sec_app.instance_id)
 
 
+@APP.route('/routing')
+def routing():
+    """
+        Logic of controller. Responsible for chaining the SecApps in correct order, depending on
+        attack rate
+        :return:
+    """
+    global CURRENT_CONF
+    split_count = 0
+    #max_splits = TIMEOUT_LENGTH / 10
+    max_splits=1
+    while CONTROLLER_READY:
+        if split_count < max_splits:
+            split_count += 1
+            time.sleep(3)
+            continue
+        split_count = 0
+        sorted_attack_list = sorted(ATTACK_LIST, key=ATTACK_LIST.__getitem__, reverse=True)
+        if sorted_attack_list == CURRENT_CONF:
+            print("New Configuration equals current one.")
+            continue
+        print("Checking threshhold...: ", THRESHHOLD)
+        if ATTACK_LIST[sorted_attack_list[0]] >= THRESHHOLD:
+            print("attacks over threshhold. Proceeding...")
+            CURRENT_CONF = sorted_attack_list
+            sorted_attack_list.insert(0, "ingress")
+            data = {"list": json.dumps(sorted_attack_list)}
+            data_json = json.dumps(data)
+            conn = Request(CONTROLLER_URL + "/mod_routing",
+                           data_json.encode("utf-8"),
+                           {'Content-Type': 'application/json'})
+            resp = urlopen(conn)
+        else:
+            print("Attacks not over threshhold.")
+        # Reset after changing route
+        print("Resetting")
+        for grp in GROUP_LIST:
+            ATTACK_LIST["%s" % (grp)] = 0
+
+
+@APP.route('/stats')
+def stats():
+    """
+    Returns ATTACK_LIST for statistics.
+    :return:
+    """
+    return str(ATTACK_LIST)
+
+
 if __name__ == "__main__":
     SEC_APP_DICT = dict()
+    CURRENT_CONF = STANDARD_CONF
+    CONTROLLER_READY = True
+    thread1 = threading.Thread(target=routing)
+    thread1.setDaemon(True)
+    thread1.start()
     for group in GROUP_LIST:
         add_group(group)
     try:

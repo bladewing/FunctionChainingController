@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Function Chaining Controller</title>
+</head>
+
+<body>
+<h2>Current attack count</h2>
+{% for secapp in ATTACK_LIST %}
+    <strong>{{ secapp }}</strong> {{ ATTACK_LIST[secapp] }}
+{% endfor %}
+<h2>Configurations:</h2>
+Standard configuration:
+{% for i in range(0,SECAPP_COUNT) %}
+{% if i == SECAPP_COUNT-1 %}
+{{ standard_conf[i] }}
+{% else %}
+{{ standard_conf[i] + " --> " }}
+{% endif %}
+{% endfor %}
+<br>
+Current configuration:
+{% for i in range(0,SECAPP_COUNT) %}
+{% if i == SECAPP_COUNT-1 %}
+{{ current_conf[i] }}
+{% else %}
+{{ current_conf[i] + " --> " }}
+{% endif %}
+{% endfor %}
+<br>
+<h2>Change current configuration</h2>
+Select unique SecApps each Form.<br><br>
+<form action="/handle_data" method="POST">
+     {% for i in range(0,SECAPP_COUNT) %}
+    {{ i+1 }}. <select name="secapps">
+     {% for secapp in current_conf %}
+        <option value="{{ secapp }}">{{ secapp }}</option>
+     {% endfor %}
+     </select>
+     {% endfor %}
+    <input type="submit" value="Change Configuration">
+</form>
+</body>
+
+</html>

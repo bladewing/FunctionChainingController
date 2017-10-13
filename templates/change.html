@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Change Configuration</title>
+</head>
+<body>
+{% if success%}
+New Configuration
+{% for i in range(0,SECAPP_COUNT) %}
+{% if i == SECAPP_COUNT-1 %}
+{{ conf[i] }}
+{% else %}
+{{ conf[i] + " --> " }}
+{% endif %}
+{% endfor %}
+send to SDN Controller. Response Code: {{ resp_code }}
+{% else %}
+Couldn't change configuration!<br>
+New Configuration is invalid or same as current configuration!<br>
+New Configuration:{{ conf }}<br>
+Current Configuration: {{ current }}
+{% endif %}
+<br>
+<a href="/"> Back to Homepage </a>
+</body>
+</html>
