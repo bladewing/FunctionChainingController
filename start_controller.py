@@ -10,9 +10,12 @@ from flask import Flask, json, request, jsonify, render_template
 import SecAppManager
 import jwt
 import logging
+import os
 
+# Initialize and load CONFIG.
 CONFIG = configparser.ConfigParser()
-CONFIG.read('controller.ini')
+CONFIG_FILE = os.path.join(os.path.dirname(__file__), 'controller.ini')
+CONFIG.read(CONFIG_FILE)
 if not CONFIG["GENERAL"]["port"]:
     print("Port missing in Config file!")
     sys.exit(0)
