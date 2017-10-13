@@ -20,7 +20,7 @@ Finally use pip3 to install the packages:
 
 After all prerequisites are installed, modify the config-file *wrapper.ini*. Then simply start the Wrapper with
 
-`python3 startController.py`
+`python3 start_controller.py`
 
 # TODO
 

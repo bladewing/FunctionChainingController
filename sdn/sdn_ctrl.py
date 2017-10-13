@@ -151,10 +151,13 @@ def mod_routing():
             egress['ports'][0]))
 
     rules_json = json.dumps(routes)
-    conn = Request('http://localhost:5051/rules', rules_json.encode('utf-8'),
+    conn = Request('http://10.1.3.39:5051/rules', rules_json.encode('utf-8'),
                   {'Content-Type': 'application/json'})
     resp = urlopen(conn)
-    return make_response('Response from switch wrapper:%s' % (resp.getcode()), resp.getcode())
+    conn2 = Request('http://10.1.3.48:5051/rules', rules_json.encode('utf-8'),
+                   {'Content-Type': 'application/json'})
+    resp2 = urlopen(conn2)
+    return make_response('Response from switch wrapper:%s' % (resp2.getcode()), resp2.getcode())
 
 
 if (__name__ == '__main__'):
