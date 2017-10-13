@@ -22,6 +22,7 @@ echo "Installing FunctionChainingController!!"
 echo "Copy to user binary directory..."
 mkdir $DIR/FCC
 cp -R SecAppManager $DIR/FCC/
+cp -R templates $DIR/FCC/
 cp start_controller.py $DIR/FCC/
 cp controller.ini $DIR/FCC/
 touch $DIR/FCC/fcc.log
