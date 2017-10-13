@@ -58,6 +58,7 @@ def handle_data():
     conn = Request(CONTROLLER_URL + "/mod_routing",
                    data_json.encode("utf-8"),
                    {'Content-Type': 'application/json'})
+    new_conf.pop(0)
     resp = urlopen(conn)
     CURRENT_CONF = new_conf
     return render_template('change.html', success=True, conf=CURRENT_CONF, resp_code=resp.getcode(),
