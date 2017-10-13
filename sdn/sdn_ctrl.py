@@ -27,7 +27,7 @@ def mod_routing():
     routes['10.1.3.39'] = list()
     routes['10.1.3.48'] = list()
     new_conf = ast.literal_eval(request.json["list"])
-    print(type(new_conf))
+    print(new_conf)
     ingress_ip = hosts['ingress']['ip']
     egress_ip = hosts['egress']['ip']
 

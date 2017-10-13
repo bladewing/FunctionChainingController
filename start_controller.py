@@ -52,6 +52,7 @@ def handle_data():
         return render_template('change.html', success=False, conf=new_conf, current=CURRENT_CONF    )
     if new_conf == CURRENT_CONF:
         return render_template('change.html', success=False, conf=new_conf, current=CURRENT_CONF)
+    new_conf.insert(0, "ingress")
     data = {"list": json.dumps(new_conf)}
     data_json = json.dumps(data)
     conn = Request(CONTROLLER_URL + "/mod_routing",
