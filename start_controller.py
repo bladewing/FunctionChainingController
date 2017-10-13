@@ -298,7 +298,7 @@ def add_sec_app(sec_app):
     :param sec_app:
     :return:
     """
-    LOGGER.info("[SecAppManager] Adding ",sec_app)
+    LOGGER.info("[SecAppManager] Adding ",sec_app.instance_id)
     if sec_app.group in SEC_APP_DICT.keys():
         if len(SEC_APP_DICT[sec_app.group]) == 0:
             SEC_APP_DICT[sec_app.group].append(sec_app)
@@ -309,7 +309,7 @@ def add_sec_app(sec_app):
                     raise ImportWarning(appliance.instance_id)
                 else:
                     SEC_APP_DICT[sec_app.group].append(sec_app)
-                    LOGGER.info("[SecAppManager] Added ", sec_app)
+                    LOGGER.info("[SecAppManager] Added ", sec_app.instance_id)
 
 
 def del_sec_app(sec_app):
@@ -326,7 +326,7 @@ def del_sec_app(sec_app):
             for appliance in SEC_APP_DICT[sec_app.group]:
                 if appliance.equals(sec_app):
                     SEC_APP_DICT[sec_app.group].remove(sec_app)
-                    LOGGER.info("[SecAppManager] Removed ", sec_app)
+                    LOGGER.info("[SecAppManager] Removed ", sec_app.instance_id)
                 else:
                     LOGGER.info("[SecAppManager] %s not registered!"%(sec_app.instance_id))
                     print("Security Appliance with id %s was not registered.", sec_app.instance_id)

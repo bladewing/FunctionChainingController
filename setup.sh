@@ -24,6 +24,7 @@ mkdir $DIR/FCC
 cp -R SecAppManager $DIR/FCC/
 cp start_controller.py $DIR/FCC/
 cp controller.ini $DIR/FCC/
+touch $DIR/FCC/fcc.log
 echo "Copy done!"
 
 echo "Installing service..."
