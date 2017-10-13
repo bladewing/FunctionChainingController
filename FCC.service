@@ -3,7 +3,7 @@ Description=Function Chaining Controller
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /home/vmadmin/bin/FCC/start_controller.py
+ExecStart=/usr/bin/python3 /home/seadmin/bin/FCC/start_controller.py
 TimeoutSec=15
 
 [Install]
