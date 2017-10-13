@@ -301,12 +301,11 @@ def routing():
     """
     global CURRENT_CONF
     split_count = 0
-    #max_splits = TIMEOUT_LENGTH / 10
-    max_splits=1
+    max_splits = TIMEOUT_LENGTH / 10
     while CONTROLLER_READY:
         if split_count < max_splits:
             split_count += 1
-            time.sleep(3)
+            time.sleep(10)
             continue
         split_count = 0
         sorted_attack_list = sorted(ATTACK_LIST, key=ATTACK_LIST.__getitem__, reverse=True)
