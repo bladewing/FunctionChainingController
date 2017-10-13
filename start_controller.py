@@ -309,6 +309,7 @@ def routing():
             split_count += 1
             time.sleep(10)
             continue
+        CURRENT_CONF = STANDARD_CONF
         split_count = 0
         sorted_attack_list = sorted(ATTACK_LIST, key=ATTACK_LIST.__getitem__, reverse=True)
         if sorted_attack_list == CURRENT_CONF:
