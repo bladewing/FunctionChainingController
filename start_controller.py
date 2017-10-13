@@ -2,7 +2,6 @@
 import configparser
 import threading
 
-from ONOSController import ONOSController
 import re
 import sys
 import time
