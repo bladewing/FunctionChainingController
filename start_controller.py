@@ -287,7 +287,7 @@ def add_group(grp):
     :param grp:
     :return:
     """
-    LOGGER.info("[SecAppManager] Adding group ", grp)
+    LOGGER.info("[SecAppManager] Adding group %s"%(grp))
     SEC_APP_DICT[grp] = list()
     return True
 
@@ -305,7 +305,7 @@ def add_sec_app(sec_app):
         else:
             for appliance in SEC_APP_DICT[sec_app.group]:
                 if appliance.equals(sec_app):
-                    LOGGER.error("[SecAppManager] %s already registered!" %(appliance))
+                    LOGGER.error("[SecAppManager] %s already registered!" %(appliance.instance_id))
                     raise ImportWarning(appliance.instance_id)
                 else:
                     SEC_APP_DICT[sec_app.group].append(sec_app)
@@ -320,7 +320,7 @@ def del_sec_app(sec_app):
     """
     if sec_app.group in SEC_APP_DICT.keys():
         if len(SEC_APP_DICT[sec_app.group]) == 0:
-            LOGGER.error("[SecAppManager] Group of %s is empty."%(sec_app))
+            LOGGER.error("[SecAppManager] Group of %s is empty."%(sec_app.group))
             print("Group is empty. No Wrapper instances of %s registered.", sec_app.group)
         else:
             for appliance in SEC_APP_DICT[sec_app.group]:
@@ -328,7 +328,7 @@ def del_sec_app(sec_app):
                     SEC_APP_DICT[sec_app.group].remove(sec_app)
                     LOGGER.info("[SecAppManager] Removed ", sec_app)
                 else:
-                    LOGGER.info("[SecAppManager] %s not registered!"%(sec_app))
+                    LOGGER.info("[SecAppManager] %s not registered!"%(sec_app.instance_id))
                     print("Security Appliance with id %s was not registered.", sec_app.instance_id)
 
 
