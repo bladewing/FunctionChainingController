@@ -387,7 +387,7 @@ if __name__ == "__main__":
     LOGGER = logging.getLogger('FCC')
     LOGGER.setLevel(logging.INFO)
     # Create FileHandler to save logs in File.
-    LOG_FILE = 'fcc.log'
+    LOG_FILE = '/home/seadmin/bin/FCC/fcc.log'
     FILE_HANDLER = logging.FileHandler(LOG_FILE)
     # Format LOGGER
     LOGGER_FORMATTER = logging.Formatter('%(asctime)s <%(name)s> - <%(levelname)s> : %(message)s')
