@@ -34,6 +34,7 @@ global CONTROLLER_READY
 STANDARD_CONF = json.loads(CONFIG["Controller"]["standard_conf"])
 global CURRENT_CONF
 THRESHHOLD = 100
+IMMINENT_THRESHHOLD = THRESHHOLD * 3
 ATTACK_LIST = dict()
 for grp in GROUP_LIST:
     ATTACK_LIST["%s" % (grp)] = 0
@@ -346,6 +347,21 @@ def routing():
         if split_count < max_splits:
             split_count += 1
             time.sleep(10)
+            temp_sorted = sorted(ATTACK_LIST, key=ATTACK_LIST.__getitem__, reverse=True)
+            if ATTACK_LIST[temp_sorted[0]] >= IMMINENT_THRESHHOLD:
+                LOGGER.info("[ROUTING] IMMINENT ATTACK DETECTED.")
+                LOGGER.info("[ROUTING] Updating CURRENT_CONF with ", temp_sorted)
+                CURRENT_CONF = temp_sorted
+                sorted_attack_list.insert(0, "ingress")
+                data = {"list": json.dumps(sorted_attack_list)}
+                data_json = json.dumps(data)
+                conn = Request(CONTROLLER_URL + "/mod_routing",
+                               data_json.encode("utf-8"),
+                               {'Content-Type': 'application/json'})
+                resp = urlopen(conn)
+                LOGGER.info("[ROUTING] Resetting attack count in ATTACK_LIST.")
+                for grp in GROUP_LIST:
+                    ATTACK_LIST["%s" % (grp)] = 0
             continue
         CURRENT_CONF = STANDARD_CONF
         split_count = 0
@@ -357,7 +373,6 @@ def routing():
                 ATTACK_LIST["%s" % (grp)] = 0
             continue
         if ATTACK_LIST[sorted_attack_list[0]] >= THRESHHOLD:
-            print("attacks over threshhold. Proceeding...")
             LOGGER.info("[ROUTING] Attack rate over threshhold. Proceding...")
             LOGGER.info("[ROUTING] Updating CURRENT_CONF with ", sorted_attack_list)
             CURRENT_CONF = sorted_attack_list
