@@ -22,7 +22,7 @@ hosts['egress'] = dict(host='10.1.3.48', ports=['3', '3'], mac='52:54:00:93:cd:2
 OPENFLOW = 'hard_timeout=300,priority=100,dl_type=0x0800,in_port={},dl_src={},nw_src={},nw_dst={},actions=mod_dl_src:{},output:{}'
 
 
-@app.route('/mod_routing', methods=['GET'])
+@app.route('/mod_routing', methods=['POST'])
 def mod_routing():
     # send http request to switches
     #timestamp in format Hour-Minute-Seconds-Microseconds
