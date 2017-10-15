@@ -10,13 +10,13 @@ class ISDNController(ABC):
         super(ISDNController, self).__init__()
 
     @abstractmethod
-    def build_topology(self):
-        raise NotImplementedError
-
-    @abstractmethod
     def mod_chain(self, chainList):
         raise NotImplementedError
 
     @abstractmethod
     def update_manager(self, sec_app_manager):
+        raise NotImplementedError
+
+    @abstractmethod
+    def routing(self):
         raise NotImplementedError

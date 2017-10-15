@@ -4,6 +4,8 @@ Simple SDN Controller that communicates with Open vSwitches via a Wrapper.
 from flask import Flask, json, make_response, request
 from urllib.request import urlopen, Request
 import ast
+import datetime
+import time
 
 app = Flask(__name__)
 
@@ -20,14 +22,15 @@ hosts['egress'] = dict(host='10.1.3.48', ports=['3', '3'], mac='52:54:00:93:cd:2
 OPENFLOW = 'hard_timeout=300,priority=100,dl_type=0x0800,in_port={},dl_src={},nw_src={},nw_dst={},actions=mod_dl_src:{},output:{}'
 
 
-@app.route('/mod_routing', methods=['POST'])
+@app.route('/mod_routing', methods=['GET'])
 def mod_routing():
     # send http request to switches
+    #timestamp in format Hour-Minute-Seconds-Microseconds
+    timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%H-%M-%S-%f')
     routes = dict()
     routes['10.1.3.39'] = list()
     routes['10.1.3.48'] = list()
     new_conf = ast.literal_eval(request.json["list"])
-    print(new_conf)
     ingress_ip = hosts['ingress']['ip']
     egress_ip = hosts['egress']['ip']
 
@@ -151,6 +154,15 @@ def mod_routing():
             egress['ports'][0]))
 
     rules_json = json.dumps(routes)
+
+    logfile = open('c39-%s' % (timestamp), 'w')
+    for route in routes["10.1.3.39"]:
+        logfile.write("%s\n"%(route))
+    logfile.close()
+    logfile = open('c48-%s' % (timestamp), 'w')
+    for route in routes["10.1.3.48"]:
+        logfile.write("%s\n" % (route))
+    logfile.close()
     conn = Request('http://10.1.3.39:5051/rules', rules_json.encode('utf-8'),
                   {'Content-Type': 'application/json'})
     resp = urlopen(conn)
@@ -158,7 +170,6 @@ def mod_routing():
                    {'Content-Type': 'application/json'})
     resp2 = urlopen(conn2)
     return make_response('Response from switch wrapper:%s' % (resp2.getcode()), resp2.getcode())
-
 
 if (__name__ == '__main__'):
     app.run(debug=False, host='0.0.0.0', port=5050)
