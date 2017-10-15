@@ -352,6 +352,9 @@ def routing():
         sorted_attack_list = sorted(ATTACK_LIST, key=ATTACK_LIST.__getitem__, reverse=True)
         if sorted_attack_list == CURRENT_CONF:
             LOGGER.info("[ROUTING] New configuration equals current one.")
+            LOGGER.info("[ROUTING] Resetting attack count in ATTACK_LIST.")
+            for grp in GROUP_LIST:
+                ATTACK_LIST["%s" % (grp)] = 0
             continue
         if ATTACK_LIST[sorted_attack_list[0]] >= THRESHHOLD:
             print("attacks over threshhold. Proceeding...")
