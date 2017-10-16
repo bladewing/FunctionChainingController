@@ -6,7 +6,7 @@ FCC_URL = "http://localhost:5000/manual"
 
 perms = list(itertools.permutations(grps))
 iterate_list = list()
-STANDARD_CONF = ("ddos","fw","ips")
+STANDARD_CONF = ("ddos", "fw", "ips")
 perms.remove(STANDARD_CONF)
 
 print(perms[0])

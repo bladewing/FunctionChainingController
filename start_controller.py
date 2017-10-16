@@ -73,7 +73,7 @@ def manual():
                    data_json.encode("utf-8"),
                    {'Content-Type': 'application/json'})
     new_conf.pop(0)
-    #resp = urlopen(conn)
+    resp = urlopen(conn)
     LOGGER.info("[HANDLE_DATA] Modified configuration sent successfully.")
     CURRENT_CONF = new_conf
     return render_template('change.html', success=True, conf=CURRENT_CONF, resp_code=200,
@@ -383,6 +383,12 @@ def routing():
             time.sleep(10)
             temp_sorted = sorted(ATTACK_LIST, key=ATTACK_LIST.__getitem__, reverse=True)
             if ATTACK_LIST[temp_sorted[0]] >= IMMINENT_THRESHHOLD:
+                if sorted_attack_list == CURRENT_CONF:
+                    LOGGER.info("[ROUTING] New configuration equals current one.")
+                    LOGGER.info("[ROUTING] Resetting attack count in ATTACK_LIST.")
+                    for grp in GROUP_LIST:
+                        ATTACK_LIST["%s" % (grp)] = 0
+                    continue
                 LOGGER.info("[ROUTING] IMMINENT ATTACK DETECTED.")
                 LOGGER.info("[ROUTING] Updating CURRENT_CONF with ", temp_sorted)
                 CURRENT_CONF = temp_sorted
