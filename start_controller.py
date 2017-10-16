@@ -383,7 +383,7 @@ def routing():
             time.sleep(10)
             temp_sorted = sorted(ATTACK_LIST, key=ATTACK_LIST.__getitem__, reverse=True)
             if ATTACK_LIST[temp_sorted[0]] >= IMMINENT_THRESHHOLD:
-                if sorted_attack_list == CURRENT_CONF:
+                if temp_sorted == CURRENT_CONF:
                     LOGGER.info("[ROUTING] New configuration equals current one.")
                     LOGGER.info("[ROUTING] Resetting attack count in ATTACK_LIST.")
                     for grp in GROUP_LIST:
@@ -392,8 +392,8 @@ def routing():
                 LOGGER.info("[ROUTING] IMMINENT ATTACK DETECTED.")
                 LOGGER.info("[ROUTING] Updating CURRENT_CONF with ", temp_sorted)
                 CURRENT_CONF = temp_sorted
-                sorted_attack_list.insert(0, "ingress")
-                data = {"list": json.dumps(sorted_attack_list)}
+                temp_sorted.insert(0, "ingress")
+                data = {"list": json.dumps(temp_sorted)}
                 data_json = json.dumps(data)
                 conn = Request(CONTROLLER_URL + "/mod_routing",
                                data_json.encode("utf-8"),
@@ -402,6 +402,7 @@ def routing():
                 LOGGER.info("[ROUTING] Resetting attack count in ATTACK_LIST.")
                 for grp in GROUP_LIST:
                     ATTACK_LIST["%s" % (grp)] = 0
+                split_count = 0
             continue
         CURRENT_CONF = STANDARD_CONF
         split_count = 0
