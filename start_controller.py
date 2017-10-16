@@ -11,6 +11,7 @@ import SecAppManager
 import jwt
 import logging
 import os
+import ast
 
 # Initialize and load CONFIG.
 CONFIG = configparser.ConfigParser()
@@ -47,11 +48,44 @@ def home():
                            ATTACK_LIST=([(k, ATTACK_LIST[k]) for k in sorted(ATTACK_LIST, key=ATTACK_LIST.get, reverse=True)]), current_conf=CURRENT_CONF,
                            standard_conf=STANDARD_CONF, SECAPP_COUNT=len(STANDARD_CONF))
 
+@APP.route('/manual', methods=["POST"])
+def manual():
+    """
+    This URI is simply for testing purposes.
+    :return:
+    """
+    global CURRENT_CONF
+    print(request.json)
+    new_conf = request.json
+    new_conf_set = set(new_conf)
+    if len(new_conf_set) < len(STANDARD_CONF):
+        LOGGER.error("[HANDLE_DATA] New configuration has at least two SecApps of the same"
+                     "group in list. ", new_conf)
+        return render_template('change.html', success=False, conf=new_conf, current=CURRENT_CONF    )
+    if new_conf == CURRENT_CONF:
+        LOGGER.error("[HANDLE_DATA] Current Configuration equals requested change.")
+        return render_template('change.html', success=False, conf=new_conf, current=CURRENT_CONF)
+    new_conf.insert(0, "ingress")
+    data = {"list": json.dumps(new_conf)}
+    data_json = json.dumps(data)
+    LOGGER.info("[HANDLE_DATA] Sending modified configuration to SDN Controller...")
+    conn = Request(CONTROLLER_URL + "/mod_routing",
+                   data_json.encode("utf-8"),
+                   {'Content-Type': 'application/json'})
+    new_conf.pop(0)
+    #resp = urlopen(conn)
+    LOGGER.info("[HANDLE_DATA] Modified configuration sent successfully.")
+    CURRENT_CONF = new_conf
+    return render_template('change.html', success=True, conf=CURRENT_CONF, resp_code=200,
+                           SECAPP_COUNT=len(STANDARD_CONF))
+
 
 @APP.route('/handle_data', methods=["POST"])
 def handle_data():
     LOGGER.info("[HANDLE_DATA] Incoming change request from /")
     global CURRENT_CONF
+    print("Type: ", type(request))
+    print(request.form)
     new_conf = dict(request.form)["secapps"]
     new_conf_set = set(new_conf)
     if len(new_conf_set) < len(STANDARD_CONF):
@@ -405,7 +439,7 @@ if __name__ == "__main__":
     LOGGER = logging.getLogger('FCC')
     LOGGER.setLevel(logging.INFO)
     # Create FileHandler to save logs in File.
-    LOG_FILE = '/home/seadmin/bin/FCC/fcc.log'
+    LOG_FILE = 'fcc.log'
     FILE_HANDLER = logging.FileHandler(LOG_FILE)
     # Format LOGGER
     LOGGER_FORMATTER = logging.Formatter('%(asctime)s <%(name)s> - <%(levelname)s> : %(message)s')
