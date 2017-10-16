@@ -9,7 +9,7 @@ else
     exit
 fi
 
-DIR=/home/vmadmin/bin
+DIR=/home/$(whoami)/bin
 
 systemctl --user stop FCC.service
 systemctl --user disable FCC.service
