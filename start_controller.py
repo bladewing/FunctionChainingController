@@ -391,7 +391,6 @@ def routing():
                     continue
                 LOGGER.info("[ROUTING] IMMINENT ATTACK DETECTED.")
                 LOGGER.info("[ROUTING] Updating CURRENT_CONF with ", temp_sorted)
-                CURRENT_CONF = temp_sorted
                 temp_sorted.insert(0, "ingress")
                 data = {"list": json.dumps(temp_sorted)}
                 data_json = json.dumps(data)
@@ -399,6 +398,8 @@ def routing():
                                data_json.encode("utf-8"),
                                {'Content-Type': 'application/json'})
                 resp = urlopen(conn)
+                temp_sorted.pop(0)
+                CURRENT_CONF = temp_sorted
                 LOGGER.info("[ROUTING] Resetting attack count in ATTACK_LIST.")
                 for grp in GROUP_LIST:
                     ATTACK_LIST["%s" % (grp)] = 0
@@ -416,7 +417,6 @@ def routing():
         if ATTACK_LIST[sorted_attack_list[0]] >= THRESHHOLD:
             LOGGER.info("[ROUTING] Attack rate over threshhold. Proceding...")
             LOGGER.info("[ROUTING] Updating CURRENT_CONF with ", sorted_attack_list)
-            CURRENT_CONF = sorted_attack_list
             sorted_attack_list.insert(0, "ingress")
             data = {"list": json.dumps(sorted_attack_list)}
             data_json = json.dumps(data)
@@ -424,6 +424,8 @@ def routing():
                            data_json.encode("utf-8"),
                            {'Content-Type': 'application/json'})
             resp = urlopen(conn)
+            sorted_attack_list.pop(0)
+            CURRENT_CONF = sorted_attack_list
         else:
             LOGGER.info("[ROUTING] Attack rate is not over threshhold.")
         # Reset after changing route
