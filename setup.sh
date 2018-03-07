@@ -6,13 +6,15 @@ then
     exit
 fi
 
-echo -n "Did you configure the controller.ini File? [y/n]"
-read answer
-if echo "$answer" | grep -iq "^y" ;then
-    echo "Good, continuing..."
-else
-    echo "Start setup.sh after configuring controller.ini!"
-    exit
+if [ "$1" != "-y" ] && [ "$2" != "-y" ]; then
+    echo -n "Did you configure the controller.ini File? [y/n]"
+    read answer
+    if echo "$answer" | grep -iq "^y" ;then
+        echo "Good, continuing..."
+    else
+        echo "Start setup.sh after configuring controller.ini!"
+        exit
+    fi
 fi
 
 mkdir /home/$(whoami)/bin
@@ -28,12 +30,16 @@ cp controller.ini $DIR/FCC/
 touch $DIR/FCC/fcc.log
 echo "Copy done!"
 
-echo "Installing service..."
-sudo cp FCC.service /etc/systemd/user/
+if [ "$1" != "--nosystemd" ] && [ "$2" != "--nosystemd" ]; then
+    echo "Installing service..."
+    sudo cp FCC.service /etc/systemd/user/
 
-echo "enabling SAW.service!"
-systemctl --user enable FCC.service
-echo "starting service..."
-systemctl --user start FCC.service
-echo "Check systemctl --user status FCC.service to see if everything went well."
-echo "If something went wrong, check $DIR/FCC/fcc.log!"
+    echo "enabling SAW.service!"
+    systemctl --user enable FCC.service
+    echo "starting service..."
+    systemctl --user start FCC.service
+    echo "Check systemctl --user status FCC.service to see if everything went well."
+    echo "If something went wrong, check $DIR/FCC/fcc.log!"
+else
+    echo "Installed without systemd"
+fi
