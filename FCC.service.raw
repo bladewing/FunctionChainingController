@@ -1,0 +1,10 @@
+[Unit]
+Description=Function Chaining Controller
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=simple
+TimeoutSec=15
+#ExecStart will be injected by setup.sh with the correct path

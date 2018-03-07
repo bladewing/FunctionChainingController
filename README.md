@@ -26,7 +26,7 @@ After all prerequisites are installed, modify the config-file *wrapper.ini*. The
 
 After all prerequisites are installed, start the *setup.sh* as user.
 
-`chmod +x setup.sh && sudo ./setup.sh`
+`chmod +x setup.sh && ./setup.sh`
 
 **Note:** This will copy all files to /home/USER/bin. Installing with root not recommended.
 
@@ -48,6 +48,11 @@ And restarting the service:
 
 `systemctl --user restart FCC.service`
 
+**Install options:**
+
+If your run `./setup.sh` from a script you want to pass `-y` as a parameter to skip all dialogs.
+
+If you don't want to install the FCC.service file you can skip it using the `--nosystemd` parameter.
 ## Uninstall
 
 *uninstall.sh* will delete all copied files from *setup.sh*, disable the service and delete it form its */etc/systemd/user/* directory.

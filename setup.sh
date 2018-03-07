@@ -32,6 +32,8 @@ echo "Copy done!"
 
 if [ "$1" != "--nosystemd" ] && [ "$2" != "--nosystemd" ]; then
     echo "Installing service..."
+    cp FCC.service.raw FCC.service
+    echo 'ExecStart=/usr/bin/python3 /home/'$(whoami)'/bin/FCC/start_controller.py' >> FCC.service
     sudo cp FCC.service /etc/systemd/user/
 
     echo "enabling SAW.service!"
